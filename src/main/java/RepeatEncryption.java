@@ -1,38 +1,31 @@
 
-public class RepeatEncryption extends EncryptionAlgorithmSuper
-        implements EncryptionAlgorithm{
+public class RepeatEncryption extends EncryptionAlgorithmBase {
     private EncryptionAlgorithm encryptionAlg;
     private int nRep;
 
-    private RepeatEncryption(){}
-    public RepeatEncryption(EncryptionAlgorithm alg, int n) throws IllegalArgumentException{
-        if (n<0){
+    private RepeatEncryption() {
+    }
+
+    public RepeatEncryption(EncryptionAlgorithm alg, int n){
+        if (n < 0) {
             throw new IllegalArgumentException("Number of repetitions must be >= 0");
         }
-        nRep=n;
-        encryptionAlg=alg;
-        charEncryptOp= new CharEncryptor();
-        charDecryptOp = new CharDecryptor();
-    }
-
-    public class CharEncryptor implements CharIntOperator{
-        public char operate(char ch, int key) throws InvalidEncryptionKeyException {
-            checkKey(key);
+        nRep = n;
+        encryptionAlg = alg;
+        charEncryptor = (ch, key) -> {
+            char res = ch;
             for (int i = 0; i < nRep; i++) {
-                ch = encryptionAlg.encryptChar(ch, key);
+                res = encryptionAlg.encryptChar(res, key);
             }
-            return ch;
-        }
-    }
-
-    public class CharDecryptor implements CharIntOperator{
-        public char operate(char ch, int key) throws InvalidEncryptionKeyException {
-            checkKey(key);
+            return res;
+        };
+        charDecryptor = (ch, key) -> {
+            char res = ch;
             for (int i = 0; i < nRep; i++) {
-                ch = encryptionAlg.encryptChar(ch, key);
+                res = encryptionAlg.decryptChar(res, key);
             }
-            return ch;
-        }
+            return res;
+        };
     }
 
 }

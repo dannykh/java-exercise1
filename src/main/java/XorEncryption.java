@@ -1,15 +1,9 @@
 
-public class XorEncryption extends EncryptionAlgorithmSuper{
+public class XorEncryption extends EncryptionAlgorithmBase {
 
-    public XorEncryption(){
-        charEncryptOp=new EncryptChar();
-        charDecryptOp = new EncryptChar();
+    public XorEncryption() {
+        charEncryptor = (ch, key) -> (char) ((ch ^ key) % MAX_KEY_VAL);
+        charDecryptor = (ch, key) -> (char) ((ch ^ key) % MAX_KEY_VAL);
     }
 
-    public class EncryptChar implements CharIntOperator {
-        public char operate(char ch, int key) throws InvalidEncryptionKeyException{
-            checkKey(key);
-            return (char)(ch^key);
-        }
-    }
 }

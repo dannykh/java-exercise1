@@ -1,6 +1,6 @@
 import java.io.*;
 
-class InvalidFilePathException extends Exception {
+class InvalidFilePathException extends RuntimeException {
     public InvalidFilePathException() {
         super();
     }
@@ -20,8 +20,7 @@ public class FileEncryptor {
     }
 
 
-    private int getKey(String keyFilePath) throws IOException,
-            InvalidFilePathException {
+    private int getKey(String keyFilePath) throws IOException {
         BufferedReader inputStream = null;
         int key = -1;
         FileReader fr = null;
@@ -52,8 +51,7 @@ public class FileEncryptor {
      * @param mode          : ENCRYPT for encryption, DECRYPT for decryption.
      */
     private void parseFile(String readFilePath, String writeFilePath,
-            int key, ParserMode mode) throws IOException,
-            InvalidEncryptionKeyException, InvalidFilePathException {
+                           int key, ParserMode mode) throws IOException {
         FileReader inputStream = null;
         FileWriter outputStream = null;
         try {
@@ -62,7 +60,7 @@ public class FileEncryptor {
             int c;
             char parsed;
             while ((c = inputStream.read()) != -1) {
-                parsed = (mode == ParserMode.ENCRYPT )
+                parsed = (mode == ParserMode.ENCRYPT)
                         ? encryptionAlg.encryptChar((char) c, key)
                         : encryptionAlg.decryptChar((char) c, key);
                 outputStream.write(parsed);
@@ -78,29 +76,26 @@ public class FileEncryptor {
 
     }
 
-    public void encryptFile(String originalFilePath,
-            String outputFilePath, String keyPath) throws IOException,
-            InvalidEncryptionKeyException, InvalidFilePathException {
+    public void encrypt(String originalFilePath,
+                        String outputFilePath, String keyPath) throws IOException {
         int key = getKey(keyPath);
         parseFile(originalFilePath, outputFilePath, key, ParserMode.ENCRYPT);
     }
 
-    public void encryptFile(String originalFilePath,
-            String outputFilePath, int key) throws IOException,
+    public void encrypt(String originalFilePath,
+                        String outputFilePath, int key) throws IOException,
             InvalidEncryptionKeyException, InvalidFilePathException {
         parseFile(originalFilePath, outputFilePath, key, ParserMode.ENCRYPT);
     }
 
-    public void decryptFile(String encryptedFilePath, String outputFilePath,
-            String keyPath) throws IOException,
-            InvalidEncryptionKeyException, InvalidFilePathException {
+    public void decrypt(String encryptedFilePath, String outputFilePath,
+                        String keyPath) throws IOException {
         int key = getKey(keyPath);
         parseFile(encryptedFilePath, outputFilePath, key, ParserMode.DECRYPT);
     }
 
-    public void decryptFile(String encryptedFilePath, String outputFilePath,
-            int key) throws IOException,
-            InvalidEncryptionKeyException, InvalidFilePathException {
+    public void decrypt(String encryptedFilePath, String outputFilePath,
+                        int key) throws IOException {
         parseFile(encryptedFilePath, outputFilePath, key, ParserMode.DECRYPT);
     }
 }

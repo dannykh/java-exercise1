@@ -41,7 +41,7 @@ public class Encryptor1_P1 {
         String keyPath = inputFile.getParent() + "\\key.txt";
         int key = generateKey();
         try {
-            encryptor.encryptFile(inputFile.toString(), outputFileName, key);
+            encryptor.encrypt(inputFile.toString(), outputFileName, key);
             FileWriter outputStream = new FileWriter(keyPath);
             outputStream.write(String.format("%d", key));
             outputStream.close();
@@ -62,14 +62,11 @@ public class Encryptor1_P1 {
     public static ProcResult handleDecryption(File inputFile,
             String outputFileName,String keyPath,FileEncryptor encryptor) {
         try {
-            encryptor.decryptFile(inputFile.toString(), outputFileName,
+            encryptor.decrypt(inputFile.toString(), outputFileName,
                     keyPath);
 
         } catch (InvalidEncryptionKeyException ex) {
             System.out.println("Invalid key.");
-            return ProcResult.FAIL;
-        } catch (InvalidFilePathException ex) {
-            System.out.println("Error handling input file.");
             return ProcResult.FAIL;
         } catch (IOException ex) {
             System.out.println("Error handling input file.");

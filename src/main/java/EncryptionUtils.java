@@ -1,19 +1,20 @@
-
+import java.util.function.BiFunction;
 
 public final class EncryptionUtils {
 
-    private EncryptionUtils(){}
-
-    interface EncryptChar<KeyType>{
-        char operate(char ch,KeyType key);
+    private EncryptionUtils() {
     }
 
-    public static <KeyType> String genericStringEncrypt(String str,KeyType key,
-                                                        EncryptChar op){
-        String encrypted="";
-        for(int i=0;i<str.length();i++){
-            encrypted+=(char)(op.operate(str.charAt(i), key));
-        }
-        return encrypted;
+    public static String encryptString(String str, int key, EncryptionAlgorithm alg) {
+        return parseString(str, key, alg::encryptChar);
+    }
+
+    public static String decryptString(String str, int key, EncryptionAlgorithm alg) {
+        return parseString(str, key, alg::decryptChar);
+    }
+
+    public static String parseString(String str, int key,
+                                     BiFunction<Character, Integer, Character> op) {
+        return String.valueOf(str.chars().mapToObj(c -> op.apply((char) c, key)));
     }
 }
