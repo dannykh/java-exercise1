@@ -1,6 +1,4 @@
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Use : java Encryptor1_P1 [flag] [input file] [output file] [key file]
@@ -9,8 +7,6 @@ import java.io.IOException;
  */
 public class Encryptor1_P1 {
     private enum Mode {ENCRYPT, DECRYPT}
-
-    private enum ProcResult {SUCCESS, FAIL}
 
     public static Mode getMode(String arg) {
         String normArg = arg.toLowerCase();
@@ -22,60 +18,6 @@ public class Encryptor1_P1 {
         }
         return null;
     }
-
-    public static String getOutputFileName(String inputFileName, Mode mode) {
-        String postfix = (mode == Mode.ENCRYPT) ? "_encrypted" : "_decrypted";
-        int p = inputFileName.lastIndexOf('.');
-        if (p <= 0) {
-            return inputFileName + postfix;
-        }
-        String name = inputFileName.substring(0, p);
-        String ext = inputFileName.substring(p + 1);
-        return name + postfix + "." + ext;
-    }
-
-    public static ProcResult handleEncryption(File inputFile,
-            String outputFileName,
-            FileEncryptor encryptor) {
-
-        String keyPath = inputFile.getParent() + "\\key.txt";
-        int key = generateKey();
-        try {
-            encryptor.encrypt(inputFile.toString(), outputFileName, key);
-            FileWriter outputStream = new FileWriter(keyPath);
-            outputStream.write(String.format("%d", key));
-            outputStream.close();
-        } catch (InvalidEncryptionKeyException ex) {
-            System.out.println("Invalid key.");
-            return ProcResult.FAIL;
-        } catch (InvalidFilePathException ex) {
-            System.out.println("Error handling input file.");
-            return ProcResult.FAIL;
-        } catch (IOException ex) {
-            System.out.println("Error handling input file.");
-            return ProcResult.FAIL;
-        }
-
-        return ProcResult.SUCCESS;
-    }
-
-    public static ProcResult handleDecryption(File inputFile,
-            String outputFileName,String keyPath,FileEncryptor encryptor) {
-        try {
-            encryptor.decrypt(inputFile.toString(), outputFileName,
-                    keyPath);
-
-        } catch (InvalidEncryptionKeyException ex) {
-            System.out.println("Invalid key.");
-            return ProcResult.FAIL;
-        } catch (IOException ex) {
-            System.out.println("Error handling input file.");
-            return ProcResult.FAIL;
-        }
-
-        return ProcResult.SUCCESS;
-    }
-
 
     public static int generateKey() {
         return (int) (Math.random() * 10) + 1;
@@ -95,27 +37,18 @@ public class Encryptor1_P1 {
             System.out.println("No key file provided.");
             return;
         }
-        File inputFile = new File(args[1]);
-        if (!inputFile.exists() || !inputFile.canRead()) {
-            System.out.println("Invalid input file.");
-            return;
-        }
-        String outputFileName = inputFile.getParent() + "\\"
-                + getOutputFileName(inputFile.getName(), mode);
-        System.out.println(outputFileName);
-        FileEncryptor encryptor = new FileEncryptor(new ShiftUpEncryption());
-        if (mode == Mode.ENCRYPT) {
-            if (handleEncryption(inputFile, outputFileName, encryptor)
-                    != ProcResult.SUCCESS) {
-                return;
+        String inputFilePath = args[1];
+        FileEncryptor fileEncryptor = new FileEncryptor(new ShiftUpEncryption());
+        FileEncryptionInterface encryptor = new FileEncryptionInterface(System.in,
+                System.out, System.err);
+        try {
+            if (mode == Mode.ENCRYPT) {
+                encryptor.encrypt(fileEncryptor, inputFilePath, generateKey());
+            } else {
+                encryptor.decrypt(fileEncryptor, inputFilePath, args[2]);
             }
-        }
-
-        if (mode == Mode.DECRYPT) {
-            if (handleDecryption(inputFile, outputFileName, args[2],
-                    encryptor) != ProcResult.SUCCESS) {
-                return;
-            }
+        } catch (IOException e) {
+            System.out.println("Cannot Write to stream.");
         }
 
     }

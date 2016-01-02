@@ -35,8 +35,9 @@ public class FileEncryptionInterface {
             FileWriter keyFileStream = new FileWriter(keyPath);
             keyFileStream.write(String.format("%d", key));
             keyFileStream.close();
-            alg.encrypt(inputFilePath, getOutputFileName(inputFilePath, EncryptorMode.ENCRYPT)
-                    , key);
+            String outputFileName = inputFile.getParent() + "\\"
+                    + getOutputFileName(inputFile.getName(), EncryptorMode.ENCRYPT);
+            alg.encrypt(inputFilePath, outputFileName, key);
         } catch (IOException e) {
             errorStream.write("Error handling input file.".getBytes());
         } catch (InvalidEncryptionKeyException e) {
@@ -45,11 +46,14 @@ public class FileEncryptionInterface {
     }
 
     public void decrypt(FileEncryptor alg,
-                        String inputFilePath,
-                        String keyPath) throws IOException {
+                        String inputFilePath, String keyPath) throws IOException {
         try {
+            int key = FileIOUtils.getIntArrayFromFile(keyPath).get(0);
+            File inputFile = new File(inputFilePath);
+            String outputFileName = inputFile.getParent() + "\\"
+                    + getOutputFileName(inputFile.getName(), EncryptorMode.ENCRYPT);
             alg.decrypt(inputFilePath, getOutputFileName(inputFilePath,
-                    EncryptorMode.DECRYPT), keyPath);
+                    EncryptorMode.DECRYPT), key);
         } catch (IOException e) {
             errorStream.write("Error handling input file.".getBytes());
         } catch (InvalidEncryptionKeyException e) {
